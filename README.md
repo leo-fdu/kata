@@ -41,4 +41,8 @@ npm run tauri dev
 
 For a release build, run `npm run tauri build -- --bundles app`. On Apple Silicon macOS, `python3 scripts/package_macos.py` copies the built frontend-only app into `outputs/` and ad-hoc signs it. The script does **not** copy KataGo, a model, or a config file. `npm run dev` opens only the browser frontend; KataGo integration requires the Tauri desktop app.
 
-An ad-hoc signature is useful for local testing but is not Apple notarization. Public binary distribution without normal Gatekeeper warnings requires your own Developer ID signing and notarization. The source code and the separately installed KataGo engine have their own licensing considerations.
+An ad-hoc signature is useful for local testing but is not Apple notarization. Public binary distribution without normal Gatekeeper warnings requires your own Developer ID signing and notarization.
+
+## License
+
+Kata's original code and assets are licensed under the [Zero-Clause BSD license](LICENSE) (0BSD). Third-party materials retain their own licenses; the license notice in `assets/KataGo-Network-LICENSE.txt` is not relicensed by this project. Kata does not bundle the KataGo engine or a neural-network model.
