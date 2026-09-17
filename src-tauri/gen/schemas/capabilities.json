@@ -1,0 +1,1 @@
+{"kata-windows":{"identifier":"kata-windows","description":"Events and window closing for the main and settings windows","local":true,"windows":["main","settings"],"permissions":["core:event:default","core:window:allow-close","core:window:allow-start-dragging"]}}
