@@ -1,0 +1,85 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build output
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Test frontend
+        run: npm test
+
+      - name: Test Rust backend
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+
+      - name: Build Windows NSIS installer
+        run: npm run tauri build -- --bundles nsis
+
+      - name: Smoke-test packaged application
+        shell: pwsh
+        run: |
+          $appPath = "src-tauri/target/release/kata.exe"
+          if (-not (Test-Path $appPath)) { throw "Packaged application was not produced" }
+          $process = Start-Process -FilePath $appPath -PassThru
+          Start-Sleep -Seconds 10
+          if ($process.HasExited) { throw "Kata exited during the Windows startup smoke test with code $($process.ExitCode)" }
+          Stop-Process -Id $process.Id -Force
+
+      - name: Verify and stage installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem "src-tauri/target/release/bundle/nsis/*-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "NSIS setup executable was not produced" }
+          if ($installer.Length -lt 50MB) { throw "Installer is unexpectedly small; the offline WebView2 runtime may be missing" }
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          $target = "artifacts/Kata-$version-Windows-x64-Setup.exe"
+          Copy-Item $installer.FullName $target
+          $hash = (Get-FileHash $target -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $(Split-Path $target -Leaf)" | Set-Content "artifacts/SHA256SUMS.txt"
+          $signature = Get-AuthenticodeSignature $target
+          Write-Host "Installer: $target"
+          Write-Host "Size: $((Get-Item $target).Length) bytes"
+          Write-Host "SHA-256: $hash"
+          Write-Host "Authenticode status: $($signature.Status) (unsigned until a Windows certificate is configured)"
+
+      - name: Upload verified Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kata-Windows-x64-${{ github.sha }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 30

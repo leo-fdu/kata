@@ -1,12 +1,12 @@
 {
   "name": "kata",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "esbuild tests/core.test.ts tests/titlebar.test.tsx tests/analysis.test.tsx --bundle --packages=external --platform=node --format=esm --outdir=work/tests --out-extension:.js=.mjs && node --test work/tests/*.mjs",
+    "test": "esbuild tests/core.test.ts tests/titlebar.test.tsx tests/analysis.test.tsx tests/platform.test.ts --bundle --packages=external --platform=node --format=esm --outdir=work/tests --out-extension:.js=.mjs && node --test work/tests/*.mjs",
     "preview": "vite preview",
     "tauri": "tauri"
   },

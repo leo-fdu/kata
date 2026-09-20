@@ -7,6 +7,7 @@ import {
   SidebarIcon,
   SparklesIcon,
 } from "./icons";
+import { shortcutPrefix } from "../platform";
 
 interface TitlebarProps {
   title: string;
@@ -43,6 +44,7 @@ export function Titlebar({
   onSettings,
   onToggleAnalysis,
 }: TitlebarProps) {
+  const modifier = shortcutPrefix();
   return (
     <header className="titlebar" data-tauri-drag-region="deep">
       <div className="traffic-light-space" data-tauri-drag-region="deep" />
@@ -52,7 +54,7 @@ export function Titlebar({
           <SidebarIcon />
         </button>
         <span className="toolbar-separator" />
-        <button className="icon-button" aria-label="Open SGF" onClick={onOpen} title="Open SGF (⌘O)">
+        <button className="icon-button" aria-label="Open SGF" onClick={onOpen} title={`Open SGF (${modifier}O)`}>
           <FolderIcon />
         </button>
       </div>
@@ -82,10 +84,10 @@ export function Titlebar({
           <SparklesIcon />
           Analysis
         </button>
-        <button className="icon-button" aria-label="Save SGF" onClick={onSave} title="Save SGF (⌘S)">
+        <button className="icon-button" aria-label="Save SGF" onClick={onSave} title={`Save SGF (${modifier}S)`}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4h13l3 3v13H4z"/><path d="M8 4v6h8V4M8 20v-7h8v7"/></svg>
         </button>
-        <button className="icon-button" aria-label="Settings" onClick={onSettings} title="Settings (⌘,)">
+        <button className="icon-button" aria-label="Settings" onClick={onSettings} title={`Settings (${modifier},)`}>
           <EllipsisIcon />
         </button>
       </div>

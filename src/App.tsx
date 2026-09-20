@@ -13,6 +13,7 @@ import { useGame } from "./hooks/useGame";
 import { useEngine } from "./hooks/useEngine";
 import { serializeSgf } from "./sgf/sgf";
 import { SettingsPane } from "./settings/SettingsPane";
+import { primaryModifierPressed } from "./platform";
 
 export function App() {
   const game = useGame();
@@ -109,15 +110,16 @@ export function App() {
       const target = event.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable) return;
       const key = event.key.toLowerCase();
-      if (event.metaKey && key === "o") { event.preventDefault(); void openGame(); return; }
-      if (event.metaKey && key === "s") { event.preventDefault(); void saveGame(event.shiftKey); return; }
-      if (event.metaKey && key === "n") { event.preventDefault(); startNewGame(); return; }
-      if (event.metaKey && key === ",") { event.preventDefault(); openSettings(); return; }
-      if (event.key === "ArrowLeft" || (event.metaKey && key === "z" && !event.shiftKey)) {
+      const primaryModifier = primaryModifierPressed(event);
+      if (primaryModifier && key === "o") { event.preventDefault(); void openGame(); return; }
+      if (primaryModifier && key === "s") { event.preventDefault(); void saveGame(event.shiftKey); return; }
+      if (primaryModifier && key === "n") { event.preventDefault(); startNewGame(); return; }
+      if (primaryModifier && key === ",") { event.preventDefault(); openSettings(); return; }
+      if (event.key === "ArrowLeft" || (primaryModifier && key === "z" && !event.shiftKey)) {
         event.preventDefault();
         game.undo();
       }
-      if (event.key === "ArrowRight" || (event.metaKey && key === "z" && event.shiftKey)) {
+      if (event.key === "ArrowRight" || (primaryModifier && key === "z" && event.shiftKey)) {
         event.preventDefault();
         game.redo();
       }

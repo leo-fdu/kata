@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_APP = ROOT / "src-tauri/target/release/bundle/macos/Kata.app"
 OUTPUTS = ROOT / "outputs"
-FINAL_APP = OUTPUTS / "Kata-0.4.0-Apple-Silicon.app"
+FINAL_APP = OUTPUTS / "Kata-0.5.0-Apple-Silicon.app"
 
 
 def package(staging: Path) -> None:

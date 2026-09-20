@@ -75,6 +75,9 @@ summary:focus-visible {
 
 .toolbar-group--leading {
   justify-self: start;
+}
+
+html[data-platform="macos"] .toolbar-group--leading {
   padding-left: 70px;
 }
 

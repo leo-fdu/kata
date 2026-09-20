@@ -1,18 +1,30 @@
 # Kata
 
-Kata is a macOS frontend for [KataGo](https://github.com/lightvector/KataGo). It provides a Go board, game controls, SGF support, and analysis views. **Kata does not include KataGo, a neural-network model, or an engine configuration.** You supply and configure all three yourself. Kata is an independent project, not an official KataGo release.
+Kata is a desktop frontend for [KataGo](https://github.com/lightvector/KataGo), currently distributed for Windows x64 and Apple Silicon macOS. It provides a Go board, game controls, SGF support, and analysis views. **Kata does not include KataGo, a neural-network model, or an engine configuration.** You supply and configure all three yourself. Kata is an independent project, not an official KataGo release.
 
 ## What you need
 
-- A macOS build of the KataGo executable that supports its JSON analysis engine.
+- A KataGo executable for your operating system that supports its JSON analysis engine.
 - A compatible KataGo neural-network model file.
 - A KataGo **analysis** configuration file, such as `analysis_example.cfg`. A GTP configuration is not a substitute.
 
-You can obtain these from the [KataGo project](https://github.com/lightvector/KataGo). On macOS, KataGo also documents a Homebrew installation (`brew install katago`). If you use Homebrew, `brew list --verbose katago` shows the installed executable, model, and configuration paths. Choose the analysis configuration, not `gtp_example.cfg`. Installation paths may differ between Macs; Kata does not guess or fill them in for you.
+You can obtain these from the [KataGo project](https://github.com/lightvector/KataGo). Windows users can download a Windows KataGo release and choose `katago.exe`, a compatible `*.bin.gz` model, and `analysis_example.cfg`. On macOS, KataGo also documents a Homebrew installation (`brew install katago`). If you use Homebrew, `brew list --verbose katago` shows the installed executable, model, and configuration paths. Choose the analysis configuration, not `gtp_example.cfg`. Installation paths vary between computers; Kata does not guess or fill them in for you.
+
+## Install Kata
+
+### Windows x64
+
+Download `Kata-0.5.0-Windows-x64-Setup.exe` from the GitHub Actions artifact or release, run it, and launch **Kata** from the Start menu. The installer targets 64-bit Windows and includes Microsoft's offline WebView2 installer so that setup does not depend on downloading the web runtime. This makes the installer substantially larger.
+
+The Windows build is not Authenticode-signed yet, so Microsoft Defender SmartScreen may display an **Unknown publisher** warning. Only run binaries downloaded from this repository, and verify the published SHA-256 checksum before installing.
+
+### Apple Silicon macOS
+
+Download the Apple Silicon DMG, open it, and copy `Kata.app` to Applications. The current macOS binary is arm64-only and is not Apple-notarized, so Gatekeeper may display a warning. An Intel or universal macOS build is not currently published.
 
 ## Set up the engine
 
-1. Open `Kata.app` and click the **Settings** button in the toolbar (or press **⌘,**).
+1. Open Kata and click the **Settings** button in the toolbar (or press **Ctrl+,** on Windows / **⌘,** on macOS).
 2. Under **Engine**, choose the KataGo executable, neural-network model, and analysis configuration files. Each field needs the full path to an existing file.
 3. Click **Save Settings**. Kata starts the configured engine and shows **KataGo running** in the analysis sidebar when it is ready. Model loading may take a little time.
 4. If startup fails, reopen **Settings**, check all three paths, and expand **Engine log**. You can also use **Restart engine** after correcting a problem.
@@ -31,7 +43,7 @@ Click an intersection to play, or use **Pass** above the board. Use the toolbar 
 
 ## Build from source
 
-Install Node.js, Rust, and the macOS development tools required by Tauri. Then run:
+Install Node.js, Rust, and the platform development tools required by Tauri. Then run:
 
 ```sh
 npm install
@@ -39,7 +51,9 @@ npm test
 npm run tauri dev
 ```
 
-For a release build, run `npm run tauri build -- --bundles app`. On Apple Silicon macOS, `python3 scripts/package_macos.py` copies the built frontend-only app into `outputs/` and ad-hoc signs it. The script does **not** copy KataGo, a model, or a config file. `npm run dev` opens only the browser frontend; KataGo integration requires the Tauri desktop app.
+For a Windows installer, run `npm run tauri build -- --bundles nsis` on Windows. The platform-specific configuration produces a per-user x64 NSIS setup executable and embeds the offline WebView2 installer. The GitHub Actions workflow runs frontend and Rust tests, builds on a real Windows runner, launches the packaged executable for a startup smoke test, verifies the installer, and publishes it as a workflow artifact with a SHA-256 checksum.
+
+For a macOS app bundle, run `npm run tauri build -- --bundles app`. On Apple Silicon macOS, `python3 scripts/package_macos.py` copies the built frontend-only app into `outputs/` and ad-hoc signs it. Neither packaging path copies KataGo, a model, or a config file. `npm run dev` opens only the browser frontend; KataGo integration requires the Tauri desktop app.
 
 An ad-hoc signature is useful for local testing but is not Apple notarization. Public binary distribution without normal Gatekeeper warnings requires your own Developer ID signing and notarization.
 
